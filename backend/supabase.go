@@ -77,6 +77,22 @@ func (s *Supabase) Select(ctx context.Context, table string, query url.Values, o
 	return s.do(req, out)
 }
 
+// Update patches the rows matched by query with the fields in patch.
+func (s *Supabase) Update(ctx context.Context, table string, query url.Values, patch any) error {
+	body, err := json.Marshal(patch)
+	if err != nil {
+		return err
+	}
+	req, err := http.NewRequestWithContext(ctx, http.MethodPatch, s.baseURL+"/rest/v1/"+table+"?"+query.Encode(), bytes.NewReader(body))
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Prefer", "return=minimal")
+	s.setServiceAuth(req)
+	return s.do(req, nil)
+}
+
 func (s *Supabase) do(req *http.Request, out any) error {
 	resp, err := s.http.Do(req)
 	if err != nil {

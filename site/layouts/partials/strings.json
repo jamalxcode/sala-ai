@@ -1,4 +1,4 @@
-{{- $keys := slice "credits" "buy" "loading" "load_error" "currency" "link_sent" "signed_in_as" "history_empty" "kind_purchase" "kind_usage" "kind_refund" "kind_expiry" "kind_adjustment" "balance_cap" "redirecting" "return_pending" "return_paid" "return_failed" "return_slow" -}}
+{{- $keys := slice "credits" "buy" "loading" "load_error" "currency" "link_sent" "signed_in_as" "history_empty" "kind_purchase" "kind_usage" "kind_refund" "kind_expiry" "kind_adjustment" "balance_cap" "redirecting" "return_pending" "return_paid" "return_failed" "return_slow" "tier_fast" "tier_best" "col_model" "col_input" "col_output" -}}
 {{- $out := dict -}}
 {{- range $keys -}}{{- $out = merge $out (dict . (i18n .)) -}}{{- end -}}
 {{- jsonify $out -}}

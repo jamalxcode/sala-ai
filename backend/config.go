@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 )
 
@@ -17,6 +18,9 @@ type Config struct {
 	SupabaseSecret string // service_role / secret key, server only
 	TapSecretKey   string // sk_test_... or sk_live_...
 	TapAPIBase     string
+	OpenRouterKey  string  // AI gateway, main provider
+	VercelKey      string  // AI gateway, fallback provider (optional)
+	USDToKWD       float64 // exchange rate used to price AI usage
 }
 
 func loadConfig() (Config, error) {
@@ -29,7 +33,14 @@ func loadConfig() (Config, error) {
 		SupabaseSecret: os.Getenv("SUPABASE_SERVICE_KEY"),
 		TapSecretKey:   os.Getenv("TAP_SECRET_KEY"),
 		TapAPIBase:     strings.TrimRight(env("TAP_API_BASE", "https://api.tap.company/v2"), "/"),
+		OpenRouterKey:  os.Getenv("OPENROUTER_API_KEY"),
+		VercelKey:      os.Getenv("AI_GATEWAY_API_KEY"),
 	}
+	rate, err := strconv.ParseFloat(env("USD_TO_KWD", "0.307"), 64)
+	if err != nil || rate <= 0 {
+		return c, fmt.Errorf("USD_TO_KWD must be a positive number")
+	}
+	c.USDToKWD = rate
 	for _, o := range strings.Split(env("ALLOWED_ORIGINS", c.SiteURL), ",") {
 		if o = strings.TrimSpace(o); o != "" {
 			c.AllowedOrigins = append(c.AllowedOrigins, strings.TrimRight(o, "/"))

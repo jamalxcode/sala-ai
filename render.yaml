@@ -18,7 +18,9 @@ services:
       - key: API_URL
         value: https://api.sala.site
       - key: ALLOWED_ORIGINS
-        value: https://ai.sala.site,https://jamalxcode.github.io
+        value: https://ai.sala.site,https://jamalxcode.github.io,https://how.sala.company
+      - key: USD_TO_KWD
+        value: "0.307"
       - key: SUPABASE_URL
         sync: false
       - key: SUPABASE_ANON_KEY
@@ -26,4 +28,8 @@ services:
       - key: SUPABASE_SERVICE_KEY
         sync: false
       - key: TAP_SECRET_KEY
+        sync: false
+      - key: OPENROUTER_API_KEY
+        sync: false
+      - key: AI_GATEWAY_API_KEY   # Vercel AI Gateway, optional fallback
         sync: false

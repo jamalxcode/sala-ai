@@ -35,6 +35,9 @@ Supabase provides both login and the database, so Neon isn't needed.
 | POST | `/v1/checkout` | ✓ | `{"pack_id":"plus"}` → `{"order_id","url"}` |
 | GET | `/v1/orders/{id}` | ✓ | Order status and credits (re-checks Tap while pending) |
 | POST | `/webhooks/tap` | Tap | Charge updates from Tap |
+| GET | `/v1/models` | – | Models apps can offer, priced in credits per 1,000 tokens |
+| POST | `/v1/chat/completions` | ✓ | OpenAI-compatible AI gateway, paid from the user's credits |
+| GET | `/v1/me/usage` | ✓ | Last 100 AI requests (app, model, tokens, credits) |
 
 "Login" means the request sends `Authorization: Bearer <Supabase access token>`.
 
@@ -42,7 +45,7 @@ Supabase provides both login and the database, so Neon isn't needed.
 
 ### 1. Supabase
 1. Create a project at supabase.com (region: closest to Kuwait, e.g. Frankfurt or Mumbai).
-2. Open **SQL Editor**, paste [`supabase/migrations/0001_init.sql`](supabase/migrations/0001_init.sql), then click **Run**.
+2. Open **SQL Editor**, paste [`supabase/migrations/0001_init.sql`](supabase/migrations/0001_init.sql) and click **Run**. Then do the same with [`0002_usage.sql`](supabase/migrations/0002_usage.sql).
 3. Under **Authentication → URL Configuration**, set Site URL to `https://ai.sala.site`. Add these redirect URLs: `https://ai.sala.site/**` and `https://jamalxcode.github.io/**`.
 4. Under **Authentication → Providers → Email**, keep Email on (sign-in links).
 5. Copy from **Project Settings → API**: the Project URL, the **anon/publishable** key and the **service_role/secret** key.
@@ -77,5 +80,34 @@ Packs live in the `packs` table (prices in fils, 1 KWD = 1000 fils). Change them
 - [ ] Legal pages finished: replace the `[placeholders]` and remove the draft notices
 - [ ] Ministry of Commerce licence covers e-commerce / IT services
 
-## Next (Phase 2)
-AI Gateway: an OpenAI-compatible `/v1/chat/completions` that reserves credits, calls OpenRouter (Vercel AI Gateway as the backup), then charges the real token cost plus markup.
+## AI gateway (Phase 2)
+
+Sala's apps never hold AI provider keys. They send the signed-in user's Supabase token to `/v1/chat/completions`, using the same request format as OpenAI's:
+
+```js
+const res = await fetch("https://api.sala.site/v1/chat/completions", {
+  method: "POST",
+  headers: {
+    Authorization: "Bearer " + session.access_token, // the user's Supabase session
+    "Content-Type": "application/json",
+    "X-Sala-App": "how.sala.company",                 // shows up in usage history
+  },
+  body: JSON.stringify({
+    model: "anthropic/claude-haiku-5.5",              // an id from GET /v1/models
+    messages: [{ role: "user", content: "Hello" }],
+    stream: true,
+  }),
+});
+```
+
+What happens for each request:
+1. **Hold:** the most the request could cost (estimated input plus `max_tokens` of output) is held from the user's oldest credits. If they don't have enough, the reply is `402 insufficient_credits`.
+2. **Call:** the request goes to **OpenRouter**, which only uses providers that don't store or train on prompts. On a network error, `429` or `5xx`, it is retried once on **Vercel AI Gateway** if that model has a `vercel_id`.
+3. **Settle:** the real cost (OpenRouter's reported cost, otherwise tokens × list price), × `USD_TO_KWD` × (1 + `markup_pct`), is charged in credits, rounded up, minimum 1. The rest of the hold goes back to the user. The charge never exceeds the hold. Non-streamed replies carry an `X-Sala-Credits-Charged` header.
+4. If the provider rejects the request, or nothing comes back, the hold is returned in full. Holds left open by a crash are released after 15 minutes.
+
+**Your app's login:** use the **same Supabase project** (URL and anon key) in each app. Users then have one account and one credit balance across all Sala apps. Each app's domain must be in Supabase's redirect URLs and in `ALLOWED_ORIGINS` on Render.
+
+**Models and prices:** these live in the `models` table. The backend copies OpenRouter's list prices into it every hour. You control `markup_pct` (default 40), `max_output_tokens`, `active` and `sort`. Set `vercel_id` to `null` for a model Vercel doesn't carry.
+
+Run [`supabase/migrations/0002_usage.sql`](supabase/migrations/0002_usage.sql) after `0001_init.sql`, then add `OPENROUTER_API_KEY` (and optionally `AI_GATEWAY_API_KEY`) in Render.

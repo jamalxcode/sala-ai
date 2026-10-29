@@ -98,6 +98,38 @@
       box.replaceChildren();
       message(T.load_error, true);
     }
+    models();
+  }
+
+  // --- Home: model price list ----------------------------------------------
+  async function models() {
+    const box = $("models");
+    if (!box) return;
+    let data;
+    try { ({ data } = await api("/v1/models")); } catch (_) { return; }
+    const price = (n) => n.toLocaleString(locale, { maximumFractionDigits: 2 });
+    for (const tier of ["fast", "best"]) {
+      const rows = data.filter((m) => m.tier === tier);
+      if (!rows.length) continue;
+      const h = document.createElement("h3");
+      h.textContent = T["tier_" + tier];
+      const table = document.createElement("table");
+      table.className = "ledger";
+      const head = table.createTHead().insertRow();
+      for (const label of [T.col_model, T.col_input, T.col_output]) {
+        const th = document.createElement("th");
+        th.textContent = label;
+        head.appendChild(th);
+      }
+      const body = table.createTBody();
+      for (const m of rows) {
+        const row = body.insertRow();
+        row.insertCell().textContent = m.label;
+        row.insertCell().textContent = price(m.credits_per_1k_input);
+        row.insertCell().textContent = price(m.credits_per_1k_output);
+      }
+      box.append(h, table);
+    }
   }
 
   // --- Account: sign in, credits, history -----------------------------------
@@ -158,7 +190,14 @@
     for (const e of entries) {
       const row = body.insertRow();
       row.insertCell().textContent = new Date(e.created_at).toLocaleDateString(locale);
-      row.insertCell().textContent = T["kind_" + e.kind] || e.kind;
+      const kind = row.insertCell();
+      kind.textContent = T["kind_" + e.kind] || e.kind;
+      if (e.kind === "usage" && e.note) {
+        const model = document.createElement("small");
+        model.className = "muted";
+        model.textContent = " · " + e.note;
+        kind.appendChild(model);
+      }
       const amt = row.insertCell();
       amt.className = e.amount > 0 ? "plus" : "minus";
       amt.textContent = (e.amount > 0 ? "+" : "") + num(e.amount);
