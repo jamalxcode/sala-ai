@@ -1,0 +1,6 @@
+backend/app
+site/public/
+site/resources/
+site/.hugo_build.lock
+.env
+.env.*

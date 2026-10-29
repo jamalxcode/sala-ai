@@ -1,0 +1,51 @@
+name: Deploy site to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "site/**"
+      - ".github/workflows/pages.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: peaceiris/actions-hugo@v3
+        with:
+          hugo-version: "0.139.0"
+          extended: true
+      - id: pages
+        uses: actions/configure-pages@v5
+      # Public settings come from repo Variables (Settings -> Secrets and
+      # variables -> Actions -> Variables). None of them are secret.
+      - name: Build
+        run: hugo --source site --minify --baseURL "${{ steps.pages.outputs.base_url }}/"
+        env:
+          HUGO_PARAMS_APIBASE: ${{ vars.API_BASE || 'https://api.sala.site' }}
+          HUGO_PARAMS_SUPABASEURL: ${{ vars.SUPABASE_URL }}
+          HUGO_PARAMS_SUPABASEANONKEY: ${{ vars.SUPABASE_ANON_KEY }}
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site/public
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

@@ -1,0 +1,25 @@
+baseURL = "https://ai.sala.site/"
+title = "Sala AI Credits"
+defaultContentLanguage = "en"
+defaultContentLanguageInSubdir = false
+enableRobotsTXT = true
+disableKinds = ["taxonomy", "term", "RSS"]
+
+# Overridden at build time by GitHub Actions through HUGO_PARAMS_* variables
+# (see .github/workflows/pages.yml). The anon key is public by design.
+[params]
+  apibase = "https://api.sala.site"
+  supabaseurl = ""
+  supabaseanonkey = ""
+
+[languages]
+  [languages.en]
+    languageName = "English"
+    languageCode = "en"
+    languageDirection = "ltr"
+    weight = 1
+  [languages.ar]
+    languageName = "العربية"
+    languageCode = "ar"
+    languageDirection = "rtl"
+    weight = 2

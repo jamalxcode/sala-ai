@@ -1,0 +1,15 @@
+{{ define "main" }}
+<section class="hero">
+  <h1>{{ i18n "packs_title" }}</h1>
+  <p class="lead">{{ i18n "packs_intro" }}</p>
+</section>
+
+<section id="packs" class="packs" aria-live="polite">
+  <p class="muted">{{ i18n "loading" }}</p>
+</section>
+
+<p id="message" class="message" role="status" hidden></p>
+<p class="fine">{{ i18n "agree" }}</p>
+
+{{ .Content }}
+{{ end }}

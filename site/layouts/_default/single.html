@@ -1,0 +1,7 @@
+{{ define "main" }}
+<article class="prose">
+  <h1>{{ .Title }}</h1>
+  {{ with .Params.draft_notice }}<p class="draft">{{ . }}</p>{{ end }}
+  {{ .Content }}
+</article>
+{{ end }}
