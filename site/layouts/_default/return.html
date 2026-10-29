@@ -1,8 +1,0 @@
-{{ define "main" }}
-<section class="card narrow center">
-  <div id="spinner" class="spinner" aria-hidden="true"></div>
-  <h1 id="return-title">{{ i18n "return_pending" }}</h1>
-  <p id="return-balance" class="balance" hidden><span id="balance"></span> <small>{{ i18n "credits" }}</small></p>
-  <p><a class="button" href="{{ "account/" | relLangURL }}">{{ i18n "go_account" }}</a></p>
-</section>
-{{ end }}

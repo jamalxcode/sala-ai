@@ -28,14 +28,8 @@ jobs:
           extended: true
       - id: pages
         uses: actions/configure-pages@v5
-      # Public settings come from repo Variables (Settings -> Secrets and
-      # variables -> Actions -> Variables). None of them are secret.
       - name: Build
         run: hugo --source site --minify --baseURL "${{ steps.pages.outputs.base_url }}/"
-        env:
-          HUGO_PARAMS_APIBASE: ${{ vars.API_BASE || 'https://api.sala.site' }}
-          HUGO_PARAMS_SUPABASEURL: ${{ vars.SUPABASE_URL }}
-          HUGO_PARAMS_SUPABASEANONKEY: ${{ vars.SUPABASE_ANON_KEY }}
       - uses: actions/upload-pages-artifact@v3
         with:
           path: site/public

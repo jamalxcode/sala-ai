@@ -1,4 +1,3 @@
 ---
-title: Sala AI Credits
-page: home
+title: Tip Sala
 ---

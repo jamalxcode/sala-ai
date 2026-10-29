@@ -1,21 +1,27 @@
 {{ define "main" }}
 <section class="hero">
-  <h1>{{ i18n "packs_title" }}</h1>
-  <p class="lead">{{ i18n "packs_intro" }}</p>
+  <h1>{{ i18n "title" }}</h1>
+  <p class="lead">{{ i18n "intro" }}</p>
 </section>
 
-<section id="packs" class="packs" aria-live="polite">
-  <p class="muted">{{ i18n "loading" }}</p>
+<section class="tips" aria-label="{{ i18n "tip" }}">
+  {{ range site.Data.tips.tips }}
+    {{ if .link }}
+    <a class="tip" href="{{ .link }}" rel="noopener">
+      <span class="tip-label">{{ i18n "tip" }}</span>
+      <span class="tip-amount">{{ .amount }} <small>{{ i18n "currency" }}</small></span>
+      <span class="tip-usd">{{ .usd }}</span>
+    </a>
+    {{ else }}
+    <span class="tip disabled" aria-disabled="true">
+      <span class="tip-label">{{ i18n "coming_soon" }}</span>
+      <span class="tip-amount">{{ .amount }} <small>{{ i18n "currency" }}</small></span>
+      <span class="tip-usd">{{ .usd }}</span>
+    </span>
+    {{ end }}
+  {{ end }}
 </section>
 
-<p id="message" class="message" role="status" hidden></p>
-<p class="fine">{{ i18n "agree" }}</p>
-
-<section class="models">
-  <h2>{{ i18n "models_title" }}</h2>
-  <p class="muted">{{ i18n "models_intro" }}</p>
-  <div id="models"></div>
-</section>
-
-{{ .Content }}
+<p class="fine">{{ i18n "secure" }}</p>
+<p class="fine">{{ i18n "voluntary" }}</p>
 {{ end }}

@@ -1,0 +1,25 @@
+# Tip buttons, in display order. Create one Tap payment link per amount in
+# the Tap dashboard and paste its URL into `link`. A button with an empty
+# link is shown as "coming soon" and can't be clicked.
+#
+# Amounts are in Kuwaiti dinar (3 decimals: 0.250 = 250 fils).
+
+[[tips]]
+amount = "0.250"
+usd = "≈ $0.80"
+link = ""
+
+[[tips]]
+amount = "1"
+usd = "≈ $3.25"
+link = ""
+
+[[tips]]
+amount = "5"
+usd = "≈ $16"
+link = ""
+
+[[tips]]
+amount = "10"
+usd = "≈ $33"
+link = ""

@@ -5,23 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{{ if .IsHome }}{{ .Site.Title }}{{ else }}{{ .Title }} · {{ .Site.Title }}{{ end }}</title>
   <meta name="description" content="{{ i18n "tagline" }}">
-  <link rel="stylesheet" href="{{ "css/site.css" | absURL }}">
+  <link rel="stylesheet" href="{{ "css/site.css" | relURL }}">
   {{ range .AllTranslations }}<link rel="alternate" hreflang="{{ .Language.LanguageCode }}" href="{{ .Permalink }}">
   {{ end }}
 </head>
-<body
-  data-page="{{ .Params.page | default "content" }}"
-  data-lang="{{ .Site.Language.Lang }}"
-  data-api="{{ .Site.Params.apibase }}"
-  data-sb-url="{{ .Site.Params.supabaseurl }}"
-  data-sb-key="{{ .Site.Params.supabaseanonkey }}"
-  data-account-url="{{ "account/" | relLangURL }}">
+<body>
   <header class="top">
     <div class="wrap top-row">
-      <a class="brand" href="{{ "" | relLangURL }}">Sala <span>AI Credits</span></a>
+      <a class="brand" href="{{ "" | relLangURL }}">Sala</a>
       <nav>
-        <a href="{{ "" | relLangURL }}">{{ i18n "nav_packs" }}</a>
-        <a href="{{ "account/" | relLangURL }}">{{ i18n "nav_account" }}</a>
         {{ range .Translations }}<a class="lang" href="{{ .RelPermalink }}" hreflang="{{ .Language.LanguageCode }}">{{ .Language.LanguageName }}</a>{{ end }}
       </nav>
     </div>
@@ -33,20 +25,12 @@
 
   <footer class="foot">
     <div class="wrap">
-      <p class="note">{{ i18n "footer_note" }}</p>
       <p class="links">
         <a href="{{ "terms/" | relLangURL }}">{{ i18n "footer_terms" }}</a>
-        <a href="{{ "refund/" | relLangURL }}">{{ i18n "footer_refund" }}</a>
         <a href="{{ "privacy/" | relLangURL }}">{{ i18n "footer_privacy" }}</a>
       </p>
       <p class="copy">© {{ now.Year }} Sala</p>
     </div>
   </footer>
-
-  <script type="application/json" id="i18n">{{ partial "strings.json" . | safeJS }}</script>
-  {{ if in (slice "home" "account" "return") (.Params.page | default "content") }}
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-  <script src="{{ "js/app.js" | absURL }}"></script>
-  {{ end }}
 </body>
 </html>
